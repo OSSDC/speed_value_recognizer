@@ -8,6 +8,14 @@
 #include <tesseract/baseapi.h>
 
 
+static unsigned int get_current_time(void)
+{
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
+
+
 using namespace cv;
 int main(int argc, char* argv[]){
 
@@ -22,6 +30,7 @@ int main(int argc, char* argv[]){
   }
 
   std::cout << "Using image: " << name_img << std::endl;
+
 
   Mat img_ocv = imread(name_img, CV_LOAD_IMAGE_GRAYSCALE );
 
@@ -42,14 +51,17 @@ int main(int argc, char* argv[]){
   tess.SetVariable("classify_bln_numeric_mode", "1");
   // tess.SetVariable("language_model_penalty_non_dict_word", "0");
 
+  unsigned int elapsed_time = get_current_time();
+
   tess.SetImage((uchar*)img_ocv.data, img_ocv.cols, img_ocv.rows, 1, img_ocv.cols);
 
   // Get the text
   char* out = tess.GetUTF8Text();
-  std::cout << "Result: " << out << std::endl;
+  elapsed_time = get_current_time() - elapsed_time;
+
+  std::cout << "Result: " << out << " in " << elapsed_time << "ms." << std::endl;
 
   waitKey( 0 );
-
 
   return 0;
 }
